@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from decouple import config
+import dj_database_url
 from django.core.management.utils import get_random_secret_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Use environment variable for SECRET_KEY in production
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', get_random_secret_key())
+SECRET_KEY = config('DJANGO_SECRET_KEY', default=get_random_secret_key())
 
 # Security warning if we're in production but using the default SECRET_KEY
 if os.environ.get('DJANGO_PRODUCTION', 'False') == 'True' and 'DJANGO_SECRET_KEY' not in os.environ:
@@ -34,7 +36,8 @@ if os.environ.get('DJANGO_PRODUCTION', 'False') == 'True' and 'DJANGO_SECRET_KEY
     )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
+# DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
+DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 
 # Security warning if DEBUG is enabled in production
 if os.environ.get('DJANGO_PRODUCTION', 'False') == 'True' and DEBUG:
@@ -45,7 +48,8 @@ if os.environ.get('DJANGO_PRODUCTION', 'False') == 'True' and DEBUG:
     )
 
 # For production, set this to your domain
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+# ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
 
 # Security warning if ALLOWED_HOSTS isn't properly configured in production
 if os.environ.get('DJANGO_PRODUCTION', 'False') == 'True' and ALLOWED_HOSTS == ['127.0.0.1', 'localhost']:
@@ -82,6 +86,26 @@ INSTALLED_APPS = [
     'csp',  # For Content Security Policy headers (install with: pip install django-csp)
 ]
 
+PRODUCTION = config('DJANGO_PRODUCTION', default=False, cast=bool)
+
+if PRODUCTION:
+    INSTALLED_APPS = [app for app in INSTALLED_APPS if app not in [
+        'tailwind',
+        'theme',
+        'django_browser_reload',
+    ]]
+
+
+if PRODUCTION:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': config('REDIS_URL', default='redis://localhost:6379/0'),
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
+        }
+    }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -95,6 +119,7 @@ MIDDLEWARE = [
     # AxesMiddleware should be the last middleware in the MIDDLEWARE list
     'axes.middleware.AxesMiddleware',
 ]
+MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'mec_portal.urls'
 
@@ -118,7 +143,8 @@ TAILWIND_APP_NAME = 'theme'
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
-NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
+
+NPM_BIN_PATH = config('NPM_BIN_PATH', default='C:/Program Files/nodejs/npm.cmd')
 
 WSGI_APPLICATION = 'mec_portal.wsgi.application'
 
@@ -198,6 +224,17 @@ DATABASES = {
     }
 }
 
+# Add database configuration for production:
+if config('DATABASE_URL', default=None):
+    DATABASES['default'] = dj_database_url.parse(config('DATABASE_URL'))
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -254,6 +291,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Media files configuration (for user uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Static files for production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'static/js', 'sw.js')
 PWA_APP_NAME = 'MEC Portal'
@@ -358,3 +399,30 @@ if os.environ.get('DJANGO_PRODUCTION', 'False') == 'True':
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 CRISPY_TEMPLATE_PACK = "tailwind"
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': config('DJANGO_LOG_FILE', default=str(BASE_DIR / 'django.log')),
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
