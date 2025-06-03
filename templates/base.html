@@ -1,0 +1,497 @@
+{% load static %}
+{% load tailwind_tags %}
+<!DOCTYPE html>
+{% load pwa %}
+{% progressive_web_app_meta %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#3B82F6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <title>{% block title %}{% endblock %} - MEC Portal</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="{% static 'pwa/manifest.json' %}">
+    <meta name="apple-mobile-web-app-title" content="MEC Portal">
+    <link rel="apple-touch-icon" href="{% static 'images/icon-192.png' %}">
+    
+    <!-- Tailwind CSS -->
+    {% tailwind_css %}
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />    
+    
+    <style>
+        /* Mobile-first custom styles */
+        .mobile-safe-area {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .tap-highlight-none {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .scroll-smooth {
+            scroll-behavior: smooth;
+        }
+        
+        /* Loading animation */
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3B82F6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Toast animations */
+        .toast-enter {
+            transform: translateY(-100px);
+            opacity: 0;
+        }
+        
+        .toast-enter-active {
+            transform: translateY(0);
+            opacity: 1;
+            transition: all 0.3s ease-out;
+        }
+        
+        .toast-exit {
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.3s ease-in;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 font-sans antialiased overflow-x-hidden">
+    <!-- Top Navigation Bar -->
+    {% include 'includes/navigation_bar.html' %}
+
+    <!-- Toast Messages Container -->
+    {% include 'includes/toast_messages.html' %}
+
+    <!-- Main Content -->
+    <main class="pt-14 pb-20 min-h-screen">
+        <div class="px-4 py-4">
+            {% block content %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <!-- Your content goes here -->
+            </div>
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    {% include 'includes/bottom_navigation.html' %}
+
+
+    <!-- Quick Actions Overlay -->
+    <div id="quick-actions-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-lg mobile-safe-area" onclick="event.stopPropagation()">
+            <div class="p-4">
+                <div class="w-12 h-1 bg-gray-300 rounded mx-auto mb-4"></div>
+                <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    {% if user.user_type == 'headmaster' %}
+                        <a href="{% url 'users:user-create' %}" class="flex items-center p-3 bg-blue-50 rounded-lg tap-highlight-none">
+                            <i class="fas fa-user-plus text-blue-600 mr-3"></i>
+                            <span class="text-sm font-medium">Create User</span>
+                        </a>
+                        <a href="{% url 'attendance:attendance-create' %}" class="flex items-center p-3 bg-green-50 rounded-lg tap-highlight-none">
+                            <i class="fas fa-calendar-plus text-green-600 mr-3"></i>
+                            <span class="text-sm font-medium">Mark Attendance</span>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'lessonplans:lesson_create_wizard' %}" class="flex items-center p-3 bg-blue-50 rounded-lg tap-highlight-none">
+                            <i class="fas fa-plus text-blue-600 mr-3"></i>
+                            <span class="text-sm font-medium">New Lesson</span>
+                        </a>
+                        <a href="{% url 'attendance:teacher-attendance' %}" class="flex items-center p-3 bg-green-50 rounded-lg tap-highlight-none">
+                            <i class="fas fa-history text-green-600 mr-3"></i>
+                            <span class="text-sm font-medium">My Attendance</span>
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <button data-action="close-overlay" class="w-full mt-4 py-3 text-gray-600 border border-gray-300 rounded-lg tap-highlight-none">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Menu Overlay -->
+    <div id="user-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="absolute top-16 right-4 bg-white rounded-lg shadow-lg min-w-48">
+            <div class="p-3 border-b border-gray-200">
+                <p class="font-medium text-sm">{{ user.get_full_name|default:user.username }}</p>
+                <p class="text-xs text-gray-500">{{ user.email }}</p>
+            </div>
+            <div class="py-2">
+                <form method="post" action="{% url 'users:logout' %}" class="w-full block">
+                    {% csrf_token %}
+                    <button type="submit" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 tap-highlight-none w-full">
+                        <i class="fas fa-sign-out-alt mr-3"></i>
+                        Sign out
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 hidden">
+        <div class="bg-white p-4 rounded-lg shadow-lg flex items-center space-x-3">
+            <div class="loading-spinner"></div>
+            <span class="text-sm">Loading...</span>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile-optimized JavaScript
+        let touchStartY = 0;
+        let touchEndY = 0;
+        
+        // UI state management
+        const UIState = {
+            openOverlay: null,
+            currentClickHandler: null
+        };
+        
+        // Auto-hide toast messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const toasts = document.querySelectorAll('.toast-message');
+            toasts.forEach(toast => {
+                setTimeout(() => {
+                    toast.classList.add('toast-exit');
+                    setTimeout(() => toast.remove(), 300);
+                }, 5000);
+            });
+            
+            // Initialize event delegation
+            initEventDelegation();
+        });
+        
+        // Event Delegation for UI Actions
+        function initEventDelegation() {
+            // Global click handler for all action buttons
+            document.addEventListener('click', function(e) {
+                // Find closest element with data-action attribute
+                const actionElement = e.target.closest('[data-action]');
+                if (!actionElement) return;
+                
+                e.preventDefault();
+                const action = actionElement.getAttribute('data-action');
+                
+                // Handle different actions
+                switch (action) {
+                    case 'toggle-menu':
+                        toggleOverlay('user-menu-overlay', e);
+                        break;
+                    case 'toggle-quick-actions':
+                        toggleOverlay('quick-actions-overlay', e);
+                        break;
+                    case 'toggle-notifications':
+                        console.log('Toggle notifications');
+                        break;
+                    case 'close-overlay':
+                        closeCurrentOverlay();
+                        break;
+                    // Add more actions as needed
+                }
+            });
+        }
+        
+        // Generic overlay toggle function
+        function toggleOverlay(overlayId, e) {
+            if (e) {
+                e.stopPropagation();
+            }
+            
+            const overlay = document.getElementById(overlayId);
+            if (!overlay) return;
+            
+            const menu = overlay.querySelector('.absolute') || overlay.querySelector('div');
+            const menuItems = menu.querySelectorAll('button, a, input');
+            
+            function handleOutsideClick(event) {
+                // If the click is outside the menu and not on the toggle button
+                if (!menu.contains(event.target) && 
+                    !event.target.closest(`[data-action="toggle-${overlayId.replace('-overlay', '')}"]`)) {
+                    closeOverlay(overlayId);
+                }
+            }
+            
+            if (overlay.classList.contains('hidden')) {
+                // Close any open overlay first
+                if (UIState.openOverlay && UIState.openOverlay !== overlayId) {
+                    closeOverlay(UIState.openOverlay);
+                }
+                
+                // Remove any existing click handler
+                if (UIState.currentClickHandler) {
+                    document.removeEventListener('click', UIState.currentClickHandler);
+                    UIState.currentClickHandler = null;
+                }
+                
+                // Show overlay
+                overlay.classList.remove('hidden');
+                UIState.openOverlay = overlayId;
+                
+                // Focus first interactive element for accessibility
+                if (menuItems.length > 0) {
+                    menuItems[0].focus();
+                }
+                
+                // Prevent background scroll
+                document.body.style.overflow = 'hidden';
+                
+                // Set up new click handler after a short delay
+                setTimeout(() => {
+                    UIState.currentClickHandler = handleOutsideClick;
+                    document.addEventListener('click', UIState.currentClickHandler);
+                }, 0);
+            } else {
+                closeOverlay(overlayId);
+            }
+        }
+        
+        // Close specific overlay
+        function closeOverlay(overlayId) {
+            const overlay = document.getElementById(overlayId);
+            if (!overlay) return;
+            
+            overlay.classList.add('hidden');
+            document.body.style.overflow = '';
+            
+            if (UIState.openOverlay === overlayId) {
+                UIState.openOverlay = null;
+            }
+            
+            // Clean up click handler
+            if (UIState.currentClickHandler) {
+                document.removeEventListener('click', UIState.currentClickHandler);
+                UIState.currentClickHandler = null;
+            }
+        }
+        
+        // Close any currently open overlay
+        function closeCurrentOverlay() {
+            if (UIState.openOverlay) {
+                closeOverlay(UIState.openOverlay);
+            }
+        }
+        
+        // Handle escape key for accessibility
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && UIState.openOverlay) {
+                closeCurrentOverlay();
+            }
+        });
+        
+        // Show/hide loading indicator
+        function showLoading() {
+            document.getElementById('loading-indicator').classList.remove('hidden');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading-indicator').classList.add('hidden');
+        }
+        
+        // Handle back button
+        window.addEventListener('popstate', function(e) {
+            hideLoading();
+        });
+        
+        // Handle form submissions
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            
+            if (form.matches('form[action*="logout"]')) {
+                showLoading();
+                
+                // Close the user menu overlay
+                const overlay = document.getElementById('user-menu-overlay');
+                if (overlay) {
+                    overlay.classList.add('hidden');
+                }
+                // Let the form submit naturally - don't prevent default
+            }
+        });
+        
+        // Handle navigation link clicks (but not for form submissions)
+        document.addEventListener('click', function(e) {
+            // Don't handle clicks if they're inside a form
+            if (e.target.closest('form')) {
+                return;
+            }
+            
+            // Only handle links
+            if (e.target.tagName === 'A' && 
+                e.target.href && 
+                !e.target.href.includes('#')) {
+                showLoading();
+            }
+        });
+        
+        // Add keyboard navigation within menu
+        document.getElementById('user-menu-overlay').addEventListener('keydown', (e) => {
+            if (UIState.openOverlay !== 'user-menu-overlay') return;
+            
+            const menu = e.currentTarget.querySelector('.absolute');
+            const menuItems = Array.from(menu.querySelectorAll('button, a, input'));
+            const currentIdx = menuItems.indexOf(document.activeElement);
+            
+            switch (e.key) {
+                case 'ArrowDown':
+                case 'ArrowRight':
+                    e.preventDefault();
+                    const nextIdx = currentIdx + 1 >= menuItems.length ? 0 : currentIdx + 1;
+                    menuItems[nextIdx].focus();
+                    break;
+                    
+                case 'ArrowUp':
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    const prevIdx = currentIdx - 1 < 0 ? menuItems.length - 1 : currentIdx - 1;
+                    menuItems[prevIdx].focus();
+                    break;
+                    
+                case 'Home':
+                    e.preventDefault();
+                    menuItems[0].focus();
+                    break;
+                    
+                case 'End':
+                    e.preventDefault();
+                    menuItems[menuItems.length - 1].focus();
+                    break;
+            }
+        });
+        
+        // Clean up on page unload
+        window.addEventListener('unload', () => {
+            if (UIState.openOverlay) {
+                closeCurrentOverlay();
+            }
+        });
+        
+        // Pull to refresh simulation
+        let isRefreshing = false;
+        
+        document.addEventListener('touchstart', function(e) {
+            touchStartY = e.changedTouches[0].screenY;
+        });
+        
+        document.addEventListener('touchend', function(e) {
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            if (touchEndY - touchStartY > 100 && window.scrollY === 0 && !isRefreshing) {
+                isRefreshing = true;
+                // Simulate refresh
+                showToast('Refreshing...', 'info');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+        }
+        
+        // Toast function
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast-message p-4 rounded-lg shadow-lg flex items-center space-x-3 toast-enter ${
+                type === 'success' ? 'bg-green-500 text-white' :
+                type === 'error' ? 'bg-red-500 text-white' :
+                type === 'warning' ? 'bg-yellow-500 text-white' :
+                'bg-blue-500 text-white'
+            }`;
+            
+            toast.innerHTML = `
+                <i class="fas ${
+                    type === 'success' ? 'fa-check-circle' :
+                    type === 'error' ? 'fa-exclamation-circle' :
+                    type === 'warning' ? 'fa-exclamation-triangle' :
+                    'fa-info-circle'
+                }"></i>
+                <span class="flex-1 text-sm">${message}</span>
+                <i class="fas fa-times text-sm opacity-70"></i>
+            `;
+            
+            toast.onclick = () => toast.remove();
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('toast-enter-active'), 10);
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+        
+        
+        // PWA Installation
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallButton();
+        });
+        
+        function showInstallButton() {
+            // Show install button in UI
+            const installBtn = document.createElement('button');
+            installBtn.textContent = 'Install App';
+            installBtn.className = 'fixed bottom-24 right-4 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg text-sm z-40';
+            installBtn.onclick = installApp;
+            document.body.appendChild(installBtn);
+            
+            setTimeout(() => installBtn.remove(), 10000); // Auto-hide after 10s
+        }
+        
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((result) => {
+                    if (result.outcome === 'accepted') {
+                        console.log('PWA installed');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+        
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/js/sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(error => console.log('SW registration failed'));
+            });
+        }
+        
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

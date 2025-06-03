@@ -1,0 +1,41 @@
+<form method="post" class="space-y-4" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+    {% csrf_token %}
+    
+    {% for field in form %}
+        <div class="space-y-1">
+            {{ field.label_tag }}
+            {% if field.field.widget.input_type == 'textarea' %}
+                {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none" }}
+            {% elif field.field.widget.input_type == 'select' %}
+                {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" }}
+            {% else %}
+                {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" }}
+            {% endif %}
+            
+            {% if field.errors %}
+                <div class="text-red-600 text-sm">
+                    {% for error in field.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% if field.help_text %}
+                <p class="text-gray-500 text-xs">{{ field.help_text }}</p>
+            {% endif %}
+        </div>
+    {% endfor %}
+    
+    <div class="flex space-x-3 pt-4">
+        <button type="submit" 
+                class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 tap-highlight-none">
+            {% if submit_text %}{{ submit_text }}{% else %}Save{% endif %}
+        </button>
+        {% if cancel_url %}
+            <a href="{{ cancel_url }}" 
+               class="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium text-center hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 tap-highlight-none">
+                Cancel
+            </a>
+        {% endif %}
+    </div>
+</form>

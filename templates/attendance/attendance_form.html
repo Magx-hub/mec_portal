@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}
+  {% if form.instance.pk %}Edit Attendance{% else %}Create Attendance{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-800">{{ form_title }}</h1>
+    <p class="text-gray-600 mt-2">Please fill in all required fields to record teacher attendance.</p>
+  </div>
+
+  <!-- Messages -->
+  {% if messages %}
+    <div class="mb-6">
+      {% for message in messages %}
+        <div class="{% if message.tags == 'success' %}bg-green-100 border-green-500 text-green-700{% elif message.tags == 'error' %}bg-red-100 border-red-500 text-red-700{% else %}bg-blue-100 border-blue-500 text-blue-700{% endif %} px-4 py-3 rounded relative border-l-4" role="alert">
+          <span class="block sm:inline">{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Form Card -->
+  <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      
+      <!-- Form Errors -->
+      {% if form.non_field_errors %}
+        <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+          <p class="font-medium">Please correct the following errors:</p>
+          <ul class="list-disc pl-5 mt-2">
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Teacher Field -->
+        <div class="form-group">
+          <label for="{{ form.teacher.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+            Teacher
+            <span class="text-red-500">*</span>
+          </label>
+          
+          {% render_field form.teacher class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" %}
+          
+          {% if form.teacher.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.teacher.errors.0 }}</p>
+          {% endif %}
+          <p class="mt-1 text-xs text-gray-500">Select the teacher for this attendance record.</p>
+        </div>
+
+        <!-- Date Field -->
+        <div class="form-group">
+          <label for="{{ form.date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+            Date
+            <span class="text-red-500">*</span>
+          </label>
+          {% render_field form.date class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" %}
+          {% if form.date.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.date.errors.0 }}</p>
+          {% endif %}
+          <p class="mt-1 text-xs text-gray-500">Date of attendance.</p>
+        </div>
+
+        <!-- Week Number Field -->
+        <div class="form-group">
+          <label for="{{ form.week_num.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+            Week Number
+            <span class="text-red-500">*</span>
+          </label>
+          {% render_field form.week_num class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" min="1" max="53" placeholder="Week number (1-53)" %}
+          {% if form.week_num.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.week_num.errors.0 }}</p>
+          {% endif %}
+          <p class="mt-1 text-xs text-gray-500">Week number of the year (1-53).</p>
+        </div>
+
+        <!-- Status Field -->
+        <div class="form-group">
+          <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+            Status
+            <span class="text-red-500">*</span>
+          </label>
+          {% render_field form.status class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" onchange="updateStatusColor(this)" %}
+          {% if form.status.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+          {% endif %}
+          <p class="mt-1 text-xs text-gray-500">Attendance status for this record.</p>
+        </div>
+
+        <!-- Check-in Time Field -->
+        <div class="form-group">
+          <label for="{{ form.check_in_time.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+            Check-in Time
+          </label>
+          {% render_field form.check_in_time class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" %}
+          {% if form.check_in_time.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.check_in_time.errors.0 }}</p>
+          {% endif %}
+          <p class="mt-1 text-xs text-gray-500">Time when teacher checked in (optional).</p>
+        </div>
+
+        <!-- Check-out Time Field -->
+        <div class="form-group">
+          <label for="{{ form.check_out_time.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+            Check-out Time
+          </label>
+          {% render_field form.check_out_time class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out" %}
+          {% if form.check_out_time.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.check_out_time.errors.0 }}</p>
+          {% endif %}
+          <p class="mt-1 text-xs text-gray-500">Time when teacher checked out (optional).</p>
+        </div>
+      </div>
+
+      <!-- Remarks Field (Full Width) -->
+      <div class="form-group mt-6">
+        <label for="{{ form.remarks.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+          Remarks
+        </label>
+        {% render_field form.remarks class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out resize-vertical" rows="3" placeholder="Additional notes or remarks about this attendance record (optional)" %}
+        {% if form.remarks.errors %}
+          <p class="mt-1 text-sm text-red-600">{{ form.remarks.errors.0 }}</p>
+        {% endif %}
+        <p class="mt-1 text-xs text-gray-500">Additional notes about this attendance record (optional).</p>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="mt-8 flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3">
+        <a href="{% url 'attendance:attendance-list' %}" class="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out text-center">
+          Cancel
+        </a>
+        <button type="submit" class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+          {% if form.instance.pk %}Update Record{% else %}Create Record{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  /* Ensure borders are visible - Tailwind CSS reset might be removing them */
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: #d1d5db !important; /* gray-300 */
+  }
+  
+  /* Enhanced focus states */
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: #3b82f6 !important; /* blue-500 */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  }
+  
+  /* Error state styling */
+  .form-group input.error,
+  .form-group select.error,
+  .form-group textarea.error {
+    border-color: #ef4444 !important; /* red-500 */
+  }
+  
+  /* Status color variants */
+  .status-present {
+    background-color: #f0fdf4 !important; /* green-50 */
+    color: #166534 !important; /* green-800 */
+  }
+  
+  .status-absent {
+    background-color: #fef2f2 !important; /* red-50 */
+    color: #991b1b !important; /* red-800 */
+  }
+  
+  .status-late {
+    background-color: #fffbeb !important; /* yellow-50 */
+    color: #92400e !important; /* yellow-800 */
+  }
+  
+  .status-leave {
+    background-color: #eff6ff !important; /* blue-50 */
+    color: #1e40af !important; /* blue-800 */
+  }
+  
+  .status-half_day {
+    background-color: #faf5ff !important; /* purple-50 */
+    color: #6b21a8 !important; /* purple-800 */
+  }
+</style>
+
+<script>
+  // Auto-fill week number when date changes
+  document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('{{ form.date.id_for_label }}');
+    const weekInput = document.getElementById('{{ form.week_num.id_for_label }}');
+    
+    if (dateInput && weekInput) {
+      dateInput.addEventListener('change', function() {
+        if (this.value) {
+          const date = new Date(this.value);
+          const weekNum = getWeekNumber(date);
+          weekInput.value = weekNum;
+        }
+      });
+    }
+    
+    function getWeekNumber(date) {
+      const targetDate = new Date(date);
+      const dayNum = targetDate.getUTCDay() || 7;
+      targetDate.setUTCDate(targetDate.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(targetDate.getUTCFullYear(), 0, 1));
+      return Math.ceil((((targetDate - yearStart) / 86400000) + 1) / 7);
+    }
+
+    // Set status color when page loads
+    const statusSelect = document.getElementById('{{ form.status.id_for_label }}');
+    if (statusSelect) {
+      updateStatusColor(statusSelect);
+    }
+    
+    // Add error classes to fields with errors
+    {% for field in form %}
+      {% if field.errors %}
+        const field{{ forloop.counter }} = document.getElementById('{{ field.id_for_label }}');
+        if (field{{ forloop.counter }}) {
+          field{{ forloop.counter }}.classList.add('error');
+        }
+      {% endif %}
+    {% endfor %}
+  });
+
+  // Update status dropdown color based on selection
+  function updateStatusColor(selectElement) {
+    // Remove all status classes
+    selectElement.classList.remove('status-present', 'status-absent', 'status-late', 'status-leave', 'status-half_day');
+    
+    // Add appropriate status class
+    if (selectElement.value) {
+      selectElement.classList.add('status-' + selectElement.value);
+    }
+  }
+</script>
+{% endblock %}

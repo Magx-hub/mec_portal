@@ -1,0 +1,266 @@
+<!-- templates/lessons/lesson_plan_wizard.html -->
+{% extends 'base.html' %}
+
+{% block title %}
+    Create Lesson Plan (Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }})
+{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center m-8">
+    <h1 class="text-xl font-bold text-gray-900 flex items-center">
+        <i class="fas fa-plus mr-3 text-blue-600"></i>
+        (Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }})
+    </h1>
+    <a href="{% url 'lessonplans:lesson_list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Back
+    </a>
+</div>
+
+<form method="post" class="space-y-8 mb-8">
+    {% csrf_token %}
+    {{ wizard.management_form }}
+    
+    <!-- Progress indicator -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden p-6">
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div class="bg-blue-600 h-2.5 rounded-full" 
+                 style="width: {% widthratio wizard.steps.step1 wizard.steps.count 100 %}%"></div>
+        </div>
+        <div class="flex justify-between mt-2 text-sm text-gray-600">
+            <span>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</span>
+            <span>{% widthratio wizard.steps.step1 wizard.steps.count 100 %}% complete</span>
+        </div>
+    </div>
+
+    <!-- Current step form -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {% if wizard.steps.step1 == 1 %}
+            <!-- Step 1: Basic Information -->
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+                    Basic Information
+                </h4>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for field in wizard.form %}
+                        <div class="{% if field.name == 'title' %}md:col-span-2{% endif %}">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        {% elif wizard.steps.step1 == 2 %}
+            <!-- Step 2: Lesson Structure & Standards -->
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-sitemap mr-2 text-blue-600"></i>
+                    Lesson Structure & Standards
+                </h4>
+            </div>
+            <div class="p-6">
+                <div class="space-y-8">
+                    <!-- Lesson Structure -->
+                    <div>
+                        <h5 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-project-diagram mr-2 text-blue-500"></i>
+                            Structure
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            {% for field in wizard.form %}
+                                {% if field.name in 'lesson_number,week_number,strand,sub_strand' %}
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ field.label }}</label>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Standards -->
+                    <div>
+                        <h5 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-graduation-cap mr-2 text-blue-500"></i>
+                            Standards & Competencies
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {% for field in wizard.form %}
+                                {% if field.name not in 'lesson_number,week_number,strand,sub_strand' %}
+                                    <div class="{% if field.name == 'key_words' %}md:col-span-2{% endif %}">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ field.label }}</label>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% elif wizard.steps.step1 == 3 %}
+            <!-- Step 3: Lesson Content -->
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-book-open mr-2 text-blue-600"></i>
+                    Lesson Content
+                </h4>
+            </div>
+            <div class="p-6 space-y-8">
+                <!-- Starter -->
+                <div>
+                    <h5 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-play mr-2 text-green-600"></i>
+                        Starter
+                    </h5>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {% for field in wizard.form %}
+                            {% if field.name in 'starter,starter_resources' %}
+                                <div class="{% if field.name == 'starter' %}lg:col-span-2{% else %}lg:col-span-1{% endif %}">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Main Activity -->
+                <div>
+                    <h5 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-cogs mr-2 text-orange-600"></i>
+                        Main Activity
+                    </h5>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {% for field in wizard.form %}
+                            {% if field.name in 'main,main_resources' %}
+                                <div class="{% if field.name == 'main' %}lg:col-span-2{% else %}lg:col-span-1{% endif %}">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Plenary -->
+                <div>
+                    <h5 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-flag-checkered mr-2 text-purple-600"></i>
+                        Plenary
+                    </h5>
+                    <div>
+                        {% for field in wizard.form %}
+                            {% if field.name == 'plenary' %}
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ field.errors.0 }}</p>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 m-8">
+        {% if wizard.steps.prev %}
+            <button name="wizard_prev_step" value="{{ wizard.steps.prev }}" 
+                    class="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg flex items-center justify-center transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Previous Step
+            </button>
+        {% else %}
+            <a href="{% url 'lessonplans:lesson_list' %}" 
+               class="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg flex items-center justify-center transition-colors">
+                <i class="fas fa-times mr-2"></i>
+                Cancel
+            </a>
+        {% endif %}
+
+        <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center justify-center transition-colors">
+            {% if wizard.steps.next %}
+                <i class="fas fa-arrow-right mr-2"></i>
+                Next Step
+            {% else %}
+                <i class="fas fa-save mr-2"></i>
+                Create Lesson Plan
+            {% endif %}
+        </button>
+    </div>
+</form>
+
+<script>
+// Form validation (similar to your original)
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.classList.contains('border-red-500')) {
+                validateField(this);
+            }
+        });
+    });
+    
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            const firstError = form.querySelector('.border-red-500');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+    
+    function validateField(field) {
+        const errorElement = field.parentNode.querySelector('.text-red-600');
+        
+        if (field.hasAttribute('required') && !field.value.trim()) {
+            field.classList.add('border-red-500', 'focus:border-red-500');
+            field.classList.remove('border-gray-300', 'focus:border-blue-500');
+            return false;
+        } else {
+            field.classList.remove('border-red-500', 'focus:border-red-500');
+            field.classList.add('border-gray-300', 'focus:border-blue-500');
+            return true;
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,36 @@
+    {% load static %}
+    {% load tailwind_tags %}
+
+    
+    {% if user.is_authenticated %}
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 mobile-safe-area">
+        <div class="flex justify-around py-2">
+            <a href="{% url 'users:dashboard' %}" 
+               class="flex flex-col items-center py-2 px-3 text-xs tap-highlight-none
+                      {% if request.resolver_match.url_name == 'dashboard' %}text-blue-600{% else %}text-gray-600{% endif %}">
+                <i class="fas fa-home text-lg mb-1"></i>
+                <span>Home</span>
+            </a>
+            
+            <a href="{% url 'attendance:attendance-list' %}" 
+               class="flex flex-col items-center py-2 px-3 text-xs tap-highlight-none
+                      {% if 'attendance' in request.resolver_match.url_name %}text-blue-600{% else %}text-gray-600{% endif %}">
+                <i class="fas fa-calendar-check text-lg mb-1"></i>
+                <span>Attendance</span>
+            </a>
+            
+            <a href="{% url 'lessonplans:lesson_list' %}" 
+               class="flex flex-col items-center py-2 px-3 text-xs tap-highlight-none
+                      {% if 'lesson' in request.resolver_match.url_name %}text-blue-600{% else %}text-gray-600{% endif %}">
+                <i class="fas fa-book-open text-lg mb-1"></i>
+                <span>Lessons</span>
+            </a>
+            
+            <button onclick="toggleQuickActions()" 
+                    class="flex flex-col items-center py-2 px-3 text-xs text-gray-600 tap-highlight-none">
+                <i class="fas fa-plus-circle text-lg mb-1"></i>
+                <span>More</span>
+            </button>
+        </div>
+    </nav>
+    {% endif %}

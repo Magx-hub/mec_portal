@@ -1,0 +1,19 @@
+<h1>Lesson Plan Presentation Report</h1>
+<p>Period: {{ report.period.start|date }} to {{ report.period.end|date }}</p>
+
+<h2>Summary</h2>
+<p>Total presented: {{ report.total_presented }}</p>
+
+<h2>By Subject</h2>
+<ul>
+{% for item in report.by_subject %}
+    <li>{{ item.lesson_plan__subject }}: {{ item.count }}</li>
+{% endfor %}
+</ul>
+
+<h2>By Teacher</h2>
+<ul>
+{% for item in report.by_teacher %}
+    <li>{{ item.lesson_plan__created_by__username }}: {{ item.count }}</li>
+{% endfor %}
+</ul>

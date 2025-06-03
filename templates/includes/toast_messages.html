@@ -1,0 +1,22 @@
+    {% load tailwind_tags %}
+
+    <div id="toast-container" class="fixed top-16 left-4 right-4 z-50 space-y-2">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="toast-message p-4 rounded-lg shadow-lg flex items-center space-x-3 
+                {% if message.tags == 'success' %}bg-green-500 text-white
+                {% elif message.tags == 'error' %}bg-red-500 text-white
+                {% elif message.tags == 'warning' %}bg-yellow-500 text-white
+                {% else %}bg-blue-500 text-white{% endif %}"
+                 onclick="this.remove()">
+                <i class="fas 
+                    {% if message.tags == 'success' %}fa-check-circle
+                    {% elif message.tags == 'error' %}fa-exclamation-circle
+                    {% elif message.tags == 'warning' %}fa-exclamation-triangle
+                    {% else %}fa-info-circle{% endif %}"></i>
+                <span class="flex-1 text-sm">{{ message }}</span>
+                <i class="fas fa-times text-sm opacity-70"></i>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>

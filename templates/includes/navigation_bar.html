@@ -1,0 +1,27 @@
+{% load static %}
+{% load tailwind_tags %}
+
+    <nav class="bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-50 mobile-safe-area">
+        <div class="px-4 h-14 flex items-center justify-between">
+            <!-- Logo/Title -->
+            <div class="flex items-center">
+                <img class="h-8 w-auto" src="{% static 'images/mec.png' %}" alt="MEC">
+                <span class="ml-2 text-lg font-semibold text-gray-900 truncate">MEC Portal</span>
+            </div>
+            
+            <!-- Right Actions -->
+            <div class="flex items-center space-x-2">
+                {% if user.is_authenticated %}
+                    <button class="flex items-center space-x-2 tap-highlight-none" 
+                            data-action="toggle-menu" 
+                            aria-label="Toggle sidebar">
+                        <i class="fas fa-bars text-gray-400 text-sm"></i>
+                    </button>
+                    
+                {% else %}
+                    <a href="{% url 'users:login' %}" class="text-blue-600 font-medium text-sm tap-highlight-none">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+

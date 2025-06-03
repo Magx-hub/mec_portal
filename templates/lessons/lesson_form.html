@@ -1,0 +1,302 @@
+
+<!-- templates/lessons/lesson_form.html -->
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if form.instance.pk %}Edit Lesson Plan{% else %}Create Lesson Plan{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-8">
+    <h1 class="text-xl font-bold text-gray-900 flex items-center">
+        <i class="fas fa-{% if form.instance.pk %}edit{% else %}plus{% endif %} mr-3 text-blue-600"></i>
+        {% if form.instance.pk %}Edit Lesson Plan{% else %}Create New{% endif %}
+    </h1>
+    <a href="{% url 'lessonplans:lesson_list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Back to List
+    </a>
+</div>
+
+<form method="post" class="space-y-8">
+    {% csrf_token %}
+    
+    <!-- Basic Information -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+                Basic Information
+            </h4>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.title.label }}</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.subject.label }}</label>
+                    {{ form.subject }}
+                    {% if form.subject.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.subject.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.grade_level.label }}</label>
+                    {{ form.grade_level }}
+                    {% if form.grade_level.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.grade_level.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.date_of_lesson.label }}</label>
+                    {{ form.date_of_lesson }}
+                    {% if form.date_of_lesson.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.date_of_lesson.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.duration.label }}</label>
+                    {{ form.duration }}
+                    {% if form.duration.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.duration.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lesson Structure -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-sitemap mr-2 text-blue-600"></i>
+                Lesson Structure
+            </h4>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.lesson_number.label }}</label>
+                    {{ form.lesson_number }}
+                    {% if form.lesson_number.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.lesson_number.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.week_number.label }}</label>
+                    {{ form.week_number }}
+                    {% if form.week_number.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.week_number.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.strand.label }}</label>
+                    {{ form.strand }}
+                    {% if form.strand.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.strand.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.sub_strand.label }}</label>
+                    {{ form.sub_strand }}
+                    {% if form.sub_strand.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.sub_strand.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Standards & Competencies -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-graduation-cap mr-2 text-blue-600"></i>
+                Standards & Competencies
+            </h4>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.content_standard.label }}</label>
+                    {{ form.content_standard }}
+                    {% if form.content_standard.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.content_standard.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.indicator.label }}</label>
+                    {{ form.indicator }}
+                    {% if form.indicator.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.indicator.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.performance_indicator.label }}</label>
+                    {{ form.performance_indicator }}
+                    {% if form.performance_indicator.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.performance_indicator.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.core_competencies.label }}</label>
+                    {{ form.core_competencies }}
+                    {% if form.core_competencies.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.core_competencies.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.key_words.label }}</label>
+                    {{ form.key_words }}
+                    {% if form.key_words.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.key_words.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lesson Content -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-book-open mr-2 text-blue-600"></i>
+                Lesson Content
+            </h4>
+        </div>
+        <div class="p-6 space-y-8">
+            <!-- Starter -->
+            <div>
+                <h5 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-play mr-2 text-green-600"></i>
+                    Starter
+                </h5>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.starter.label }}</label>
+                        {{ form.starter }}
+                        {% if form.starter.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.starter.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="lg:col-span-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.starter_resources.label }}</label>
+                        {{ form.starter_resources }}
+                        {% if form.starter_resources.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.starter_resources.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Activity -->
+            <div>
+                <h5 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-cogs mr-2 text-orange-600"></i>
+                    Main Activity
+                </h5>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.main.label }}</label>
+                        {{ form.main }}
+                        {% if form.main.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.main.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="lg:col-span-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.main_resources.label }}</label>
+                        {{ form.main_resources }}
+                        {% if form.main_resources.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.main_resources.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plenary -->
+            <div>
+                <h5 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-flag-checkered mr-2 text-purple-600"></i>
+                    Plenary
+                </h5>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ form.plenary.label }}</label>
+                    {{ form.plenary }}
+                    {% if form.plenary.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.plenary.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <a href="{% url 'lessonplans:lesson_list' %}" class="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg flex items-center justify-center transition-colors">
+            <i class="fas fa-times mr-2"></i>
+            Cancel
+        </a>
+        <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center justify-center transition-colors">
+            <i class="fas fa-save mr-2"></i>
+            {% if form.instance.pk %}Update Lesson Plan{% else %}Create Lesson Plan{% endif %}
+        </button>
+    </div>
+</form>
+
+<script>
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.classList.contains('border-red-500')) {
+                validateField(this);
+            }
+        });
+    });
+    
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            const firstError = form.querySelector('.border-red-500');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+    
+    function validateField(field) {
+        const errorElement = field.parentNode.querySelector('.text-red-600');
+        
+        if (field.hasAttribute('required') && !field.value.trim()) {
+            field.classList.add('border-red-500', 'focus:border-red-500');
+            field.classList.remove('border-gray-300', 'focus:border-blue-500');
+            return false;
+        } else {
+            field.classList.remove('border-red-500', 'focus:border-red-500');
+            field.classList.add('border-gray-300', 'focus:border-blue-500');
+            return true;
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Lesson Plan Status Report</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 1cm;
+        }
+        body {
+            font-family: "Helvetica", "Arial", sans-serif;
+            line-height: 1.4;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 10pt;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #555;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.8em;
+            color: #7f8c8d;
+            position: fixed;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+            height: 50px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .report-date {
+            text-align: right;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        .status-presented { color: green; font-weight: bold; }
+        .status-rejected { color: red; font-weight: bold; }
+        .status-checked { color: blue; font-weight: bold; }
+        .status-not-reviewed { color: orange; font-weight: bold; }
+        .status-pending { color: #555; font-weight: bold; } /* Default for other statuses */
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="static/images/mec.png" alt="School Logo" style="max-height: 80px; margin-bottom: 10px;">
+        <h2>M.E.C. Lesson Plan Status Report</h2>
+    </div>
+
+    <div class="report-date">
+        Report Generated: {{ report_date|date:"F d, Y H:i" }}
+    </div>
+
+    <h1>Lesson Plan Status Overview</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Created By</th>
+                <th>Date Created</th>
+                <th>Subject</th>
+                <th>Grade Level</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for plan in lesson_plans %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ plan.title }}</td>
+                <td>{{ plan.created_by }}</td>
+                <td>{{ plan.date_created|date:"Y-m-d" }}</td>
+                <td>{{ plan.subject }}</td>
+                <td>{{ plan.grade_level }}</td>
+                <td class="
+                    {% if plan.status == 'Presented' %}status-presented
+                    {% elif plan.status == 'Rejected' %}status-rejected
+                    {% elif plan.status == 'Checked' %}status-checked
+                    {% elif plan.status == 'Not Reviewed' %}status-not-reviewed
+                    {% else %}status-pending{% endif %}
+                ">{{ plan.status }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align:center;">No lesson plans found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        M.E.C. Portal &copy; {% now "Y" %} - Confidential
+    </div>
+</body>
+</html>

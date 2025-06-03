@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-md p-8">
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Create Account</h2>
+        
+        {% if form.errors %}
+        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+            <strong class="font-bold">Error!</strong>
+            <p>Please correct the errors below:</p>
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <p class="text-sm">{{ field.label }}: {{ error }}</p>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <p class="text-sm">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            
+            <div class="space-y-1">
+                <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
+                <input type="text" name="username" id="id_username" 
+                    class="w-full rounded-md py-2 px-3 border-gray-500 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                    placeholder="Choose a username" required>
+            </div>
+            
+            <div class="space-y-1">
+                <label for="id_email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" name="email" id="id_email" 
+                    class="w-full rounded-md py-2 px-3 border-gray-500 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                    placeholder="Enter your email address" required>
+            </div>
+            
+            <div class="space-y-1">
+                <label for="id_password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" name="password" id="id_password" 
+                    class="w-full rounded-md py-2 px-3 border-gray-500 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                    placeholder="Create a password" required>
+            </div>
+            
+            <div class="space-y-1">
+                <label for="id_user_type" class="block text-sm font-medium text-gray-700">User Type</label>
+                <select name="user_type" id="id_user_type" 
+                    class="w-full rounded-md py-2 px-3 border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                    required>
+                    <option value="">Select user type</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="headmaster">Headmaster</option>
+                    <option value="staff">Staff</option>
+                </select>
+            </div>
+            
+            <div class="pt-4">
+                <button type="submit" 
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Register
+                </button>
+            </div>
+        </form>
+        
+        <div class="mt-6 text-center">
+            <p class="text-sm text-gray-600">
+                Already have an account? 
+                <a href="{% url 'users:login' %}" class="font-medium text-blue-600 hover:text-blue-500">
+                    Login here
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

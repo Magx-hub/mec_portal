@@ -1,0 +1,202 @@
+<!-- templates/lessons/lesson_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ lesson.title }}{% endblock %}
+
+{% block content %}
+
+
+<div class="flex flex-col lg:flex-row justify-between items-start m-8 space-y-4 lg:space-y-0">   
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ lesson.title }}</h1>
+        <p class="text-gray-600 flex items-center">
+            <i class="fas fa-user mr-2"></i>
+            Created by {{ lesson.created_by.get_full_name|default:lesson.created_by.username }} 
+            on {{ lesson.date_created|date:"F d, Y" }}
+        </p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+        {% if user == lesson.created_by %}
+            <a href="{% url 'lessonplans:lesson_edit' lesson.pk %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                <i class="fas fa-edit mr-2"></i>
+                Edit
+            </a>
+            <a href="{% url 'lessonplans:lesson_delete' lesson.pk %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                <i class="fas fa-trash mr-2"></i>
+                Delete
+            </a>
+        {% endif %}
+
+        {% if user.user_type == 'headmaster' %}
+            <a href="{% url 'lessonplans:lesson_check' lesson.pk %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                {% if user_review %}Update Review{% else %}Review{% endif %}
+            </a>
+         {% endif %}
+
+        <a href="{% url 'lessonplans:lesson_list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to List
+        </a>
+    </div>
+</div>
+
+<!-- Lesson Review Section - Now with consistent styling -->
+{% with latest_review=lesson.lessonplancheck_set.first %}
+{% if latest_review %}
+<div class="bg-white rounded-lg shadow-sm p-6 m-8 border border-gray-200">
+    <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center pb-2 border-b border-gray-200">
+        <i class="fas fa-check-circle mr-2 text-blue-600"></i>
+        Latest Review Status
+    </h3>
+    
+    {% if latest_review %}
+        <div class="mb-4">
+            <span class="px-3 py-1 rounded-full text-sm font-medium 
+                {% if latest_review.status == 'presented' %}bg-green-100 text-green-800
+                {% elif latest_review.status == 'rejected' %}bg-red-100 text-red-800
+                {% elif latest_review.status == 'checked' %}bg-blue-100 text-blue-800
+                {% else %}bg-blue-100 text-blue-800{% endif %}">
+                Status: {{ latest_review.get_status_display }} by {{ latest_review.checked_by.get_full_name|default:latest_review.checked_by.username }}
+            </span>
+        </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 m-8">
+    <!-- Basic Information -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center pb-2 border-b border-gray-200">
+            <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+            Basic Information
+        </h3>
+        <div class="space-y-3">
+            <div class="flex justify-between">
+                <span class="font-medium text-gray-700">Subject:</span>
+                <span class="text-gray-900">{{ lesson.subject }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="font-medium text-gray-700">Grade Level:</span>
+                <span class="text-gray-900">{{ lesson.grade_level }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="font-medium text-gray-700">Lesson Date:</span>
+                <span class="text-gray-900">{{ lesson.date_of_lesson|date:"F d, Y" }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="font-medium text-gray-700">Duration:</span>
+                <span class="text-gray-900">{{ lesson.duration }} minutes</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lesson Structure -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center pb-2 border-b border-gray-200">
+            <i class="fas fa-sitemap mr-2 text-blue-600"></i>
+            Lesson Structure
+        </h3>
+        <div class="space-y-3">
+            <div class="flex justify-between">
+                <span class="font-medium text-gray-700">Week Number:</span>
+                <span class="text-gray-900">{{ lesson.week_number }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="font-medium text-gray-700">Lesson Number:</span>
+                <span class="text-gray-900">{{ lesson.lesson_number }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="font-medium text-gray-700">Strand:</span>
+                <span class="text-gray-900">{{ lesson.strand }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="font-medium text-gray-700">Sub-Strand:</span>
+                <span class="text-gray-900">{{ lesson.sub_strand }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Standards & Competencies -->
+<div class="bg-white rounded-lg shadow-sm p-6 m-8 border border-gray-200">
+    <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center pb-2 border-b border-gray-200">
+        <i class="fas fa-graduation-cap mr-2 text-blue-600"></i>
+        Standards & Competencies
+    </h3>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+            <h5 class="font-semibold text-gray-800 mb-2">Content Standard</h5>
+            <p class="text-gray-700">{{ lesson.content_standard }}</p>
+        </div>
+        <div>
+            <h5 class="font-semibold text-gray-800 mb-2">Indicator</h5>
+            <p class="text-gray-700">{{ lesson.indicator }}</p>
+        </div>
+        <div>
+            <h5 class="font-semibold text-gray-800 mb-2">Performance Indicator</h5>
+            <p class="text-gray-700">{{ lesson.performance_indicator }}</p>
+        </div>
+        <div>
+            <h5 class="font-semibold text-gray-800 mb-2">Core Competencies</h5>
+            <p class="text-gray-700">{{ lesson.core_competencies }}</p>
+        </div>
+        <div class="lg:col-span-2">
+            <h5 class="font-semibold text-gray-800 mb-2">Key Words</h5>
+            <span class="inline-block bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">{{ lesson.key_words }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Lesson Content -->
+<div class="space-y-8 m-8">
+    <!-- Starter -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center pb-2 border-b border-gray-200">
+            <i class="fas fa-play mr-2 text-green-600"></i>
+            Starter
+        </h3>
+        <div class="prose max-w-none text-gray-700">
+            {{ lesson.starter|linebreaks }}
+        </div>
+        {% if lesson.starter_resources %}
+            <div class="mt-4">
+                <h5 class="font-semibold text-gray-800 mb-2">Resources:</h5>
+                <div class="prose max-w-none text-gray-700">
+                    {{ lesson.starter_resources|linebreaks }}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Main Activity -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center pb-2 border-b border-gray-200">
+            <i class="fas fa-cogs mr-2 text-orange-600"></i>
+            Main Activity
+        </h3>
+        <div class="prose max-w-none text-gray-700">
+            {{ lesson.main|linebreaks }}
+        </div>
+        {% if lesson.main_resources %}
+            <div class="mt-4">
+                <h5 class="font-semibold text-gray-800 mb-2">Resources:</h5>
+                <div class="prose max-w-none text-gray-700">
+                    {{ lesson.main_resources|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+    </div>
+
+    <!-- Plenary -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8 border border-gray-200">
+        <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center pb-2 border-b border-gray-200">
+            <i class="fas fa-flag-checkered mr-2 text-purple-600"></i>
+            Plenary
+        </h3>
+        <div class="prose max-w-none text-gray-700 mb-8">
+            {{ lesson.plenary|linebreaks }}
+        </div>
+    </div>
+</div>
+{% endblock %}

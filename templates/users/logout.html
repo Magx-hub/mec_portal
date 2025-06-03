@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Logout{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-md mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+      <!-- Logout Icon -->
+      <div class="mb-6">
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100">
+          <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Logout Message -->
+      <h1 class="text-2xl font-bold text-gray-900 mb-4">Confirm Logout</h1>
+      
+      <p class="text-gray-600 mb-6">
+        Are you sure you want to log out of your account?
+      </p>
+
+      <!-- Logout Form -->
+      <form method="post" class="mb-4">
+        {% csrf_token %}
+        <button type="submit" class="w-full px-6 py-3 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-200">
+          Yes, Log Me Out
+        </button>
+      </form>
+
+      <!-- Cancel Link -->
+      <a href="{% url 'users:dashboard' %}" class="inline-block px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200">
+        Cancel
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

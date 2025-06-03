@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Dashboard{% endblock %}
+
+{% block extra_head %}
+<!-- Include Chart.js for data visualization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Attendance Dashboard</h1>
+    <p class="text-gray-600 mt-2">
+      Analytics overview for <span class="font-medium">{{ current_month }}</span>
+    </p>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="mb-8 flex flex-wrap gap-3">
+    <a href="{% url 'attendance:attendance-list' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg>
+      View All Records
+    </a>
+    <a href="{% url 'attendance:bulk-create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+      </svg>
+      Bulk Create
+    </a>
+    <a href="{% url 'attendance:reports' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+      View Reports
+    </a>
+  </div>
+
+  <!-- Statistics Overview -->
+  <div class="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Total Teachers Card -->
+    <div class="bg-white rounded-lg shadow p-5 border-t-4 border-indigo-500">
+      <div class="flex justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Total Teachers</p>
+          <p class="text-3xl font-bold text-gray-800">{{ total_teachers }}</p>
+        </div>
+        <div class="text-indigo-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+    
+    <!-- This Month's Records Card -->
+    <div class="bg-white rounded-lg shadow p-5 border-t-4 border-blue-500">
+      <div class="flex justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Records This Month</p>
+          <p class="text-3xl font-bold text-gray-800">{{ total_records_this_month }}</p>
+        </div>
+        <div class="text-blue-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Present Teachers Today Card -->
+    <div class="bg-white rounded-lg shadow p-5 border-t-4 border-green-500">
+      <div class="flex justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Present Today</p>
+          <p class="text-3xl font-bold text-green-600" id="presentToday">-</p>
+        </div>
+        <div class="text-green-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Absent Teachers Today Card -->
+    <div class="bg-white rounded-lg shadow p-5 border-t-4 border-red-500">
+      <div class="flex justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Absent Today</p>
+          <p class="text-3xl font-bold text-red-600" id="absentToday">-</p>
+        </div>
+        <div class="text-red-400">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Monthly Trends Chart -->
+    <div class="lg:col-span-2 bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-700">Monthly Attendance Trends</h2>
+      </div>
+      <div class="p-6">
+        <div class="h-64">
+          <canvas id="monthlyTrendsChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Status Distribution -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-700">Attendance Status</h2>
+      </div>
+      <div class="p-6">
+        <div class="h-64">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="mt-8 bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-700">Recent Attendance Records</h2>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Teacher
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Date
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Status
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Check In
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Check Out
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Work Hrs
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for attendance in recent_attendance %}
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">{{ attendance.teacher.first_name }} {{ attendance.teacher.last_name }}</div>
+                <div class="text-xs text-gray-500">{{ attendance.teacher.department|default:"-" }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ attendance.date|date:"Y-m-d" }}</div>
+                <div class="text-xs text-gray-500">{{ attendance.date|date:"l" }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                  {% if attendance.status == 'present' %}
+                    bg-green-100 text-green-800
+                  {% elif attendance.status == 'absent' %}
+                    bg-red-100 text-red-800
+                  {% elif attendance.status == 'late' %}
+                    bg-yellow-100 text-yellow-800
+                  {% elif attendance.status == 'leave' %}
+                    bg-blue-100 text-blue-800
+                  {% elif attendance.status == 'half_day' %}
+                    bg-indigo-100 text-indigo-800
+                  {% else %}
+                    bg-gray-100 text-gray-800
+                  {% endif %}">
+                  {{ attendance.get_status_display }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ attendance.check_in_time|default:"-" }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ attendance.check_out_time|default:"-" }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ attendance.working_hours|default:0 }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <a href="{% url 'attendance:attendance-update' attendance.pk %}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
+                <a href="{% url 'attendance:attendance-delete' attendance.pk %}" class="text-red-600 hover:text-red-900">Delete</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                No recent attendance records found.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    {% if recent_attendance %}
+      <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 text-right">
+        <a href="{% url 'attendance:attendance-list' %}" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+          View All Attendance Records →
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Sample data for demonstration - in a real app, this would come from the server
+    const today = new Date();
+    
+    // Set "Present Today" and "Absent Today" values
+    // In a real app, these would be populated from the backend
+    document.getElementById('presentToday').textContent = Math.floor(Math.random() * {{ total_teachers }});
+    document.getElementById('absentToday').textContent = Math.floor(Math.random() * 5);
+    
+    // Monthly Trends Chart
+    const monthlyTrendsCtx = document.getElementById('monthlyTrendsChart').getContext('2d');
+    const monthlyTrendsChart = new Chart(monthlyTrendsCtx, {
+      type: 'line',
+      data: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [
+          {
+            label: 'Present',
+            data: [90, 88, 92, 85],
+            borderColor: 'rgba(34, 197, 94, 1)',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: 'Absent',
+            data: [5, 7, 3, 10],
+            borderColor: 'rgba(239, 68, 68, 1)',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: 'Late',
+            data: [5, 5, 5, 5],
+            borderColor: 'rgba(234, 179, 8, 1)',
+            backgroundColor: 'rgba(234, 179, 8, 0.1)',
+            fill: true,
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Number of Teachers'
+            }
+          }
+        }
+      }
+    });
+    
+    // Status Distribution Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const statusChart = new Chart(statusCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Present', 'Absent', 'Late', 'Leave'],
+        datasets: [{
+          data: [75, 10, 10, 5],
+          backgroundColor: [
+            'rgba(34, 197, 94, 0.7)',
+            'rgba(239, 68, 68, 0.7)',
+            'rgba(234, 179, 8, 0.7)',
+            'rgba(59, 130, 246, 0.7)'
+          ],
+          borderColor: [
+            'rgba(34, 197, 94, 1)',
+            'rgba(239, 68, 68, 1)',
+            'rgba(234, 179, 8, 1)',
+            'rgba(59, 130, 246, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}
+

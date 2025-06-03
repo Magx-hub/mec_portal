@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Welcome Section -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 text-white">
+        <h1 class="text-xl font-bold mb-2">Welcome back, {{ user.get_full_name|default:user.username }}!</h1>
+        <p class="text-blue-100 text-sm">Here's what's happening today</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    {% if user.user_type == 'headmaster' %}
+                        <p class="text-2xl font-bold text-gray-900">{{ teachers.count|default:0 }}</p>
+                        <p class="text-sm text-gray-600">Total Teachers</p>
+                    {% else %}
+                        <p class="text-2xl font-bold text-gray-900">{{ attendance_count|default:0 }}</p>
+                        <p class="text-sm text-gray-600">This Month</p>
+                    {% endif %}
+                </div>
+                <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    {% if user.user_type == 'headmaster' %}
+                        <i class="fas fa-users text-green-600 text-xl"></i>
+                    {% else %}
+                        <i class="fas fa-calendar-check text-green-600 text-xl"></i>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-2xl font-bold text-gray-900">{{ lesson_plans.count|default:lesson_count|default:0 }}</p>
+                    <p class="text-sm text-gray-600">Lesson Plans</p>
+                </div>
+                <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-book-open text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg border border-gray-200">
+        <div class="p-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Quick Actions</h2>
+        </div>
+        
+        <div class="p-4 grid grid-cols-2 gap-3">
+            {% if user.user_type == 'headmaster' %}
+                <a href="{% url 'attendance:attendance-create' %}" 
+                   class="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 tap-highlight-none">
+                    <i class="fas fa-calendar-plus text-green-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-green-700">Mark Attendance</span>
+                </a>
+                
+                <a href="{% url 'users:user-create' %}" 
+                   class="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 tap-highlight-none">
+                    <i class="fas fa-user-plus text-blue-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-blue-700">Add User</span>
+                </a>
+                
+                <a href="{% url 'users:user-list' %}" 
+                   class="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 tap-highlight-none">
+                    <i class="fas fa-users text-purple-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-purple-700">All Users</span>
+                </a>
+                
+                <a href="{% url 'lessonplans:lesson_list' %}" 
+                   class="flex flex-col items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 tap-highlight-none">
+                    <i class="fas fa-clipboard-list text-orange-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-orange-700">All Lessons</span>
+                </a>
+<a href="{% url 'lessonplans:lessonplan_status_report_pdf' %}" 
+                   class="flex flex-col items-center p-4 bg-teal-50 rounded-lg hover:bg-teal-100 tap-highlight-none">
+                    <i class="fas fa-file-pdf text-teal-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-teal-700">Lesson Status Report</span>
+                </a>
+            {% else %}
+                <a href="{% url 'lessonplans:lesson_create_wizard' %}" 
+                   class="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 tap-highlight-none">
+                    <i class="fas fa-plus text-blue-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-blue-700">New Lesson</span>
+                </a>
+                
+                <a href="{% url 'attendance:teacher-attendance' %}" 
+                   class="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 tap-highlight-none">
+                    <i class="fas fa-history text-purple-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-purple-700">My Attendance</span>
+                </a>
+                
+                <a href="{% url 'lessonplans:lesson_list' %}" 
+                   class="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 tap-highlight-none">
+                    <i class="fas fa-list text-green-600 text-2xl mb-2"></i>
+                    <span class="text-sm font-medium text-green-700">My Lessons</span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if user.user_type == 'headmaster' %}
+    <!-- Teachers Overview -->
+    <div class="bg-white rounded-lg border border-gray-200">
+        <div class="p-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Teachers Overview</h2>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+            {% for teacher in teachers %}
+                <div class="p-4 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">{{ teacher.get_full_name|default:teacher.username }}</p>
+                            <p class="text-xs text-gray-500">{{ teacher.lessonplan_set.count }} lesson plans</p>
+                        </div>
+                    </div>
+                    <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View Details</a>
+                </div>
+            {% empty %}
+                <div class="p-8 text-center">
+                    <i class="fas fa-users text-gray-400 text-2xl mb-2"></i>
+                    <p class="text-gray-500 text-sm">No teachers found</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- All Lesson Plans (Headmaster View) -->
+    <div class="bg-white rounded-lg border border-gray-200">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-900">Recent Lesson Plans</h2>
+            <a href="{% url 'lessonplans:lesson_list' %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View All</a>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+            {% for plan in lesson_plans|slice:":5" %}
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-sm font-medium text-gray-900">{{ plan.title }}</h3>
+                        {% with check=plan.lessonplancheck_set.first %}
+                        {% if check %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if check.status == 'checked' %}bg-green-100 text-green-800
+                                {% elif check.status == 'presented' %}bg-blue-100 text-blue-800
+                                {% elif check.status == 'rejected' %}bg-red-100 text-red-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ check.get_status_display }}
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                Not Reviewed
+                            </span>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <p class="text-xs text-gray-500 mb-2">
+                        <span class="font-medium">Subject:</span> {{ plan.subject }} | 
+                        <span class="font-medium">Grade:</span> {{ plan.grade_level }}
+                    </p>
+                    <p class="text-xs text-gray-500 mb-3">
+                        <span class="font-medium">By:</span> {{ plan.created_by.get_full_name|default:plan.created_by.username }}
+                    </p>
+                    <div class="flex space-x-2">
+                        <a href="{% url 'lessonplans:lesson_detail' pk=plan.id %}" 
+                           class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded">View</a>
+                        <a href="{% url 'lessonplans:lesson_check' pk=plan.id %}" 
+                           class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded">Review</a>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="p-8 text-center">
+                    <i class="fas fa-book-open text-gray-400 text-2xl mb-2"></i>
+                    <p class="text-gray-500 text-sm">No lesson plans available</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if user.user_type == 'teacher' %}
+    <!-- My Lesson Plans (Teacher View) -->
+    <div class="bg-white rounded-lg border border-gray-200">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-900">My Recent Lesson Plans</h2>
+            <a href="{% url 'lessonplans:lesson_list' %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View All</a>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+            {% for plan in lesson_plans|slice:":5" %}
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-sm font-medium text-gray-900">{{ plan.title }}</h3>
+                        {% with check=plan.lessonplancheck_set.first %}
+                        {% include "lessonplans/_lesson_status_badge.html" with plan=plan no_review_text="Not Reviewed" %}
+                        {% endwith %}
+                    </div>
+                    <p class="text-xs text-gray-500 mb-2">
+                        <span class="font-medium">Subject:</span> {{ plan.subject }} | 
+                        <span class="font-medium">Grade:</span> {{ plan.grade_level }}
+                    </p>
+                    <p class="text-xs text-gray-500 mb-2">
+                        <span class="font-medium">Lesson Date:</span> {{ plan.date_of_lesson }}
+                    </p>
+                    {% with check=plan.lessonplancheck_set.first %}
+                    {% if check.notes %}
+                        <div class="mt-2 p-2 bg-blue-50 rounded text-xs">
+                            <p class="font-medium text-blue-800">Review Notes:</p>
+                            <p class="text-blue-700">{{ check.notes }}</p>
+                        </div>
+                    {% endif %}
+                    {% if check.rating %}
+                        <p class="text-xs text-gray-500 mt-1">
+                            <span class="font-medium">Rating:</span> {{ check.get_rating_display }}
+                        </p>
+                    {% endif %}
+                    {% endwith %}
+                    <div class="flex space-x-2 mt-3">
+                        <a href="{% url 'lessonplans:lesson_detail' pk=plan.id %}" 
+                           class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded">View</a>
+                        <a href="{% url 'lessonplans:lesson_edit' pk=plan.id %}" 
+                           class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded">Edit</a>
+                        <a href="{% url 'lessonplans:lessonplan_export_pdf' pk=plan.id %}" 
+                           class="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded">Export PDF</a>
+                        <a href="{% url 'lessonplans:lesson_delete' pk=plan.id %}" 
+                           class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-2 py-1 rounded">Delete</a>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="p-8 text-center">
+                    <i class="fas fa-book-open text-gray-400 text-2xl mb-2"></i>
+                    <p class="text-gray-500 text-sm">No lesson plans created yet</p>
+                    <a href="{% url 'lessonplans:lesson_create_wizard' %}" 
+                       class="mt-2 inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-plus mr-1"></i>
+                        Create your first lesson plan
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- My Attendance Records (Teacher View) -->
+    <div class="bg-white rounded-lg border border-gray-200">
+        <div class="p-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Recent Attendance</h2>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+            {% for record in attendance|slice:":5" %}
+                <div class="p-4 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="h-8 w-8 {% if record.status == 'present' %}bg-green-100{% else %}bg-red-100{% endif %} rounded-full flex items-center justify-center">
+                            <i class="fas {% if record.status == 'present' %}fa-check text-green-600{% else %}fa-times text-red-600{% endif %} text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">{{ record.date }}</p>
+                            <p class="text-xs text-gray-500 capitalize">{{ record.status }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="p-8 text-center">
+                    <i class="fas fa-calendar-times text-gray-400 text-2xl mb-2"></i>
+                    <p class="text-gray-500 text-sm">No attendance records found</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Activities -->
+    <div class="bg-white rounded-lg border border-gray-200">
+        <div class="p-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Recent Activities</h2>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+            {% for activity in recent_activities %}
+                <div class="p-4 flex items-center space-x-3">
+                    <div class="h-8 w-8 bg-{{ activity.color|default:'blue' }}-100 rounded-full flex items-center justify-center">
+                        <i class="fas {{ activity.icon }} text-{{ activity.color|default:'blue' }}-600 text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900">{{ activity.title }}</p>
+                        <p class="text-xs text-gray-500">{{ activity.time }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="p-8 text-center">
+                    <i class="fas fa-clock text-gray-400 text-2xl mb-2"></i>
+                    <p class="text-gray-500 text-sm">No recent activities</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

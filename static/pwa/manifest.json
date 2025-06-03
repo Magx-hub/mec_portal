@@ -1,0 +1,28 @@
+{
+    "name": "MEC Portal",
+    "short_name": "MEC Portal",
+    "description": "School Management Portal for Teachers",
+    "start_url": "/users/dashboard/",
+    "display": "standalone",
+    "background_color": "#f9fafb",
+    "theme_color": "#3B82F6",
+    "orientation": "portrait",
+    "dir": "ltr",
+    "categories": ["education", "productivity"],
+    "icons": [
+        {
+            "src": "images/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "images/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable any"
+        }
+    ],
+    "screenshots": [],
+    "shortcuts": []
+}

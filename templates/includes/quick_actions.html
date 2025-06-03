@@ -1,0 +1,34 @@
+  <div id="quick-actions-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" onclick="toggleQuickActions()">
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-lg mobile-safe-area" onclick="event.stopPropagation()">
+            <div class="p-4">
+                <div class="w-12 h-1 bg-gray-300 rounded mx-auto mb-4"></div>
+                <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    {% if user.user_type == 'headmaster' %}
+                        <a href="{% url 'users:user-create' %}" class="flex items-center p-3 bg-blue-50 rounded-lg tap-highlight-none">
+                            <i class="fas fa-user-plus text-blue-600 mr-3"></i>
+                            <span class="text-sm font-medium">Create User</span>
+                        </a>
+                        <a href="{% url 'attendance:attendance-create' %}" class="flex items-center p-3 bg-green-50 rounded-lg tap-highlight-none">
+                            <i class="fas fa-calendar-plus text-green-600 mr-3"></i>
+                            <span class="text-sm font-medium">Mark Attendance</span>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'lessonplans:lesson_create_wizard' %}" class="flex items-center p-3 bg-blue-50 rounded-lg tap-highlight-none">
+                            <i class="fas fa-plus text-blue-600 mr-3"></i>
+                            <span class="text-sm font-medium">New Lesson</span>
+                        </a>
+                        <a href="{% url 'attendance:teacher-attendance' %}" class="flex items-center p-3 bg-green-50 rounded-lg tap-highlight-none">
+                            <i class="fas fa-history text-green-600 mr-3"></i>
+                            <span class="text-sm font-medium">My Attendance</span>
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <button onclick="toggleQuickActions()" class="w-full mt-4 py-3 text-gray-600 border border-gray-300 rounded-lg tap-highlight-none">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>

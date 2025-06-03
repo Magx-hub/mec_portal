@@ -1,0 +1,74 @@
+/* Additional mobile-specific styles */
+@media (max-width: 768px) {
+    /* Larger touch targets */
+    .btn, button, input[type="button"], input[type="submit"] {
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Better form controls */
+    input, textarea, select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        border-radius: 8px;
+    }
+    
+    /* Card spacing */
+    .card {
+        margin-bottom: 1rem;
+        border-radius: 12px;
+    }
+    
+    /* List items */
+    .list-item {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Sticky positioning for important elements */
+    .sticky-top {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+    }
+    
+    /* Safe area handling */
+    .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    .safe-area-top {
+        padding-top: env(safe-area-inset-top);
+    }
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Pull to refresh indicator */
+.pull-refresh {
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    font-size: 14px;
+    z-index: 60;
+}

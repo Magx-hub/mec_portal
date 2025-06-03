@@ -1,0 +1,14 @@
+<div class="text-center py-12">
+    <div class="mx-auto h-24 w-24 text-gray-400 mb-4">
+        <i class="fas {{ icon|default:'fa-inbox' }} text-6xl"></i>
+    </div>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">{{ title|default:"No items yet" }}</h3>
+    <p class="text-gray-500 mb-6 max-w-sm mx-auto">{{ description|default:"Get started by creating your first item" }}</p>
+    {% if cta_url %}
+        <a href="{{ cta_url }}" 
+           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 tap-highlight-none">
+            {% if cta_icon %}<i class="fas {{ cta_icon }} mr-2"></i>{% endif %}
+            {{ cta_text|default:"Get Started" }}
+        </a>
+    {% endif %}
+</div>

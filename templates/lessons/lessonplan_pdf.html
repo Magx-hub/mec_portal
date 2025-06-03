@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lesson Plan</title>
+    <style>
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            margin: 40px;
+            color: #333;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #222;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            background-color: #ddd;
+            color: #111;
+            padding: 8px 12px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+
+        td, th {
+            border: 1px solid #999;
+            padding: 8px;
+            vertical-align: top;
+        }
+
+        .label {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            width: 25%;
+        }
+
+        .value {
+            background-color: #fff;
+            width: 75%;
+        }
+
+        .info-table td.label, .info-table td.value {
+            width: 25%;
+        }
+
+        .activities-table th {
+            background-color: #ccc;
+            color: #000;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .activities-table td {
+            background-color: #fff;
+        }
+
+        .section-name {
+            font-weight: bold;
+            width: 20%;
+            background-color: #f9f9f9;
+        }
+
+        .activity-content {
+            width: 55%;
+        }
+
+        .resources-content {
+            width: 25%;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>{{ lesson.title }}</h1>
+    <h2>Lesson Plan</h2>
+
+    <div class="section-title">Lesson Overview</div>
+    <table class="info-table">
+        <tr>
+            <td class="label">Subject</td>
+            <td class="value">{{ lesson.subject }}</td>
+            <td class="label">Grade Level</td>
+            <td class="value">{{ lesson.grade_level }}</td>
+        </tr>
+        <tr>
+            <td class="label">Date</td>
+            <td class="value">{{ lesson.date_of_lesson }}</td>
+            <td class="label">Duration</td>
+            <td class="value">{{ lesson.duration }} minutes</td>
+        </tr>
+        <tr>
+            <td class="label">Lesson #</td>
+            <td class="value">{{ lesson.lesson_number }}</td>
+            <td class="label">Week #</td>
+            <td class="value">{{ lesson.week_number }}</td>
+        </tr>
+    </table>
+
+    <div class="section-title">Curriculum Alignment</div>
+    <table>
+        <tr>
+            <td class="label">Strand</td>
+            <td class="value">{{ lesson.strand }}</td>
+        </tr>
+        <tr>
+            <td class="label">Sub-strand</td>
+            <td class="value">{{ lesson.sub_strand }}</td>
+        </tr>
+        <tr>
+            <td class="label">Content Standard</td>
+            <td class="value">{{ lesson.content_standard }}</td>
+        </tr>
+        <tr>
+            <td class="label">Indicator</td>
+            <td class="value">{{ lesson.indicator }}</td>
+        </tr>
+        <tr>
+            <td class="label">Performance Indicator</td>
+            <td class="value">{{ lesson.performance_indicator }}</td>
+        </tr>
+        <tr>
+            <td class="label">Core Competencies</td>
+            <td class="value">{{ lesson.core_competencies }}</td>
+        </tr>
+        <tr>
+            <td class="label">Key Words</td>
+            <td class="value">{{ lesson.key_words }}</td>
+        </tr>
+    </table>
+
+    <div class="section-title">Lesson Activities</div>
+    <table class="activities-table">
+        <thead>
+            <tr>
+                <th>Section</th>
+                <th>Activities</th>
+                <th>Resources</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="section-name">Starter</td>
+                <td class="activity-content">{{ lesson.starter }}</td>
+                <td class="resources-content">{{ lesson.starter_resources }}</td>
+            </tr>
+            <tr>
+                <td class="section-name">Main</td>
+                <td class="activity-content">{{ lesson.main }}</td>
+                <td class="resources-content">{{ lesson.main_resources }}</td>
+            </tr>
+            <tr>
+                <td class="section-name">Plenary</td>
+                <td class="activity-content">{{ lesson.plenary }}</td>
+                <td class="resources-content">{{ lesson.plenary_resources|default:"N/A" }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="section-title">Administration</div>
+    <table>
+        <tr>
+            <td class="label">Created By</td>
+            <td class="value">{{ lesson.created_by.username }}</td>
+        </tr>
+        <tr>
+            <td class="label">Date Created</td>
+            <td class="value">{{ lesson.date_created }}</td>
+        </tr>
+    </table>
+
+</body>
+</html>

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Reports{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Attendance Reports</h1>
+    <p class="text-gray-600 mt-2">Generate attendance reports and analyze teacher attendance patterns.</p>
+  </div>
+
+  <!-- Messages -->
+  {% if messages %}
+    <div class="mb-6">
+      {% for message in messages %}
+        <div class="{% if message.tags == 'success' %}bg-green-100 border-green-500 text-green-700{% elif message.tags == 'error' %}bg-red-100 border-red-500 text-red-700{% else %}bg-blue-100 border-blue-500 text-blue-700{% endif %} px-4 py-3 rounded relative border-l-4 mb-2" role="alert">
+          <span class="block sm:inline">{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Report Generation Form -->
+  <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <form id="report-form" method="get" action="{% url 'attendance:attendance-summary' %}">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h2 class="text-lg font-semibold text-gray-700 mb-4">1. Select Date Range</h2>
+          <div class="space-y-4">
+            <div>
+              <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+              <input type="date" id="start_date" name="start_date" value="{{ start_date }}" 
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" required>
+            </div>
+            <div>
+              <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+              <input type="date" id="end_date" name="end_date" value="{{ end_date }}" 
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" required>
+            </div>
+            <div class="flex space-x-4">
+              <button type="button" onclick="setLastWeek()" class="text-sm text-blue-600 hover:text-blue-800">Last Week</button>
+              <button type="button" onclick="setLastMonth()" class="text-sm text-blue-600 hover:text-blue-800">Last Month</button>
+              <button type="button" onclick="setCurrentMonth()" class="text-sm text-blue-600 hover:text-blue-800">Current Month</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="text-lg font-semibold text-gray-700 mb-4">2. Select Teacher(s)</h2>
+          <div>
+            <label for="teacher_select" class="block text-sm font-medium text-gray-700 mb-1">Teacher</label>
+            <select id="teacher_select" name="teacher_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+              <option value="">All Teachers</option>
+              {% for teacher in teachers %}
+                <option value="{{ teacher.id }}">{{ teacher.first_name }} {{ teacher.last_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mt-4">
+            <p class="text-sm text-gray-500">Selecting "All Teachers" will generate a report comparing attendance statistics across all teachers.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Options -->
+      <div class="mt-8 border-t border-gray-200 pt-6">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">3. Report Options</h2>
+        <div class="flex flex-wrap gap-4">
+          <div class="flex items-center">
+            <input type="checkbox" id="include_charts" name="include_charts" value="1" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" checked>
+            <label for="include_charts" class="ml-2 block text-sm text-gray-700">Include Charts</label>
+          </div>
+          <div class="flex items-center">
+            <input type="checkbox" id="include_details" name="include_details" value="1" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" checked>
+            <label for="include_details" class="ml-2 block text-sm text-gray-700">Include Detailed Records</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="mt-8 flex justify-end space-x-3">
+        <button type="reset" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Reset
+        </button>
+        <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Generate Report
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Quick Reports -->
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-lg font-semibold text-gray-700 mb-4">Quick Reports</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <a href="{% url 'attendance:attendance-summary' %}?start_date={{ start_date }}&end_date={{ end_date }}" 
+         class="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg border border-gray-200 flex flex-col items-center text-center transition duration-150">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        <h3 class="font-medium text-gray-800">Overall Attendance Report</h3>
+        <p class="text-sm text-gray-600 mt-1">Summary of all teachers for current month</p>
+      </a>
+      
+      <a href="{% url 'attendance:export-pdf' %}?start_date={{ start_date }}&end_date={{ end_date }}" 
+         class="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg border border-gray-200 flex flex-col items-center text-center transition duration-150">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+        <h3 class="font-medium text-gray-800">PDF Export</h3>
+        <p class="text-sm text-gray-600 mt-1">Download current month report as PDF</p>
+      </a>
+      
+      <a href="javascript:void(0)" onclick="showLateTrends()" 
+         class="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg border border-gray-200 flex flex-col items-center text-center transition duration-150">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 class="font-medium text-gray-800">Lateness Trends</h3>
+        <p class="text-sm text-gray-600 mt-1">Analysis of late arrivals and trends</p>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Validate date range when form is submitted
+    document.getElementById('report-form').addEventListener('submit', function(e) {
+      const startDate = new Date(document.getElementById('start_date').value);
+      const endDate = new Date(document.getElementById('end_date').value);
+      
+      if (startDate > endDate) {
+        e.preventDefault();
+        alert('Start date cannot be after end date.');
+      }
+    });
+  });
+  
+  // Set date range to last week
+  function setLastWeek() {
+    const today = new Date();
+    const lastWeekStart = new Date(today);
+    lastWeekStart.setDate(today.getDate() - 7);
+    
+    document.getElementById('start_date').value = formatDate(lastWeekStart);
+    document.getElementById('end_date').value = formatDate(today);
+  }
+  
+  // Set date range to last month
+  function setLastMonth() {
+    const today = new Date();
+    const lastMonthStart = new Date(today);
+    lastMonthStart.setMonth(today.getMonth() - 1);
+    
+    document.getElementById('start_date').value = formatDate(lastMonthStart);
+    document.getElementById('end_date').value = formatDate(today);
+  }
+  
+  // Set date range to current month
+  function setCurrentMonth() {
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    document.getElementById('start_date').value = formatDate(firstDayOfMonth);
+    document.getElementById('end_date').value = formatDate(today);
+  }
+  
+  // Format date as YYYY-MM-DD
+  function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+  // Show lateness trends modal (placeholder function)
+  function showLateTrends() {
+    alert('Lateness trends analysis will be shown here in a future update.');
+  }
+</script>
+{% endblock %}
+
