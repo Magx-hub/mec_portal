@@ -1,0 +1,1 @@
+This is a School management portal created using Django and django-tailwind. The web app is later configured into a PWA. It will allow school teachers in a small basic school login to create lesson plans. The school head a.k.a headmaster will be assigned the superuser status, and can mark and monitor attendance of teachers, and mark and monitor their lesson plans.
